@@ -92,8 +92,7 @@
         };
   
 
-
-      function findNextDeparture(departures, minute) {
+      function departureForMinute(departures, minute) {
         for(var index in departures) {
           if(departures[index] >= minute) {
             return departures[index];
@@ -122,7 +121,7 @@
         }
         return minutes;
       }
-            
+      
       var now = new Date();
       var hour = now.getHours();
       var minute = now.getMinutes();
@@ -136,7 +135,7 @@
         }
 
         var departures = from_luma[hour];
-        nextDeparture = findNextDeparture(departures, minute);
+        nextDeparture = departureForMinute(departures, minute);
         
         if(nextDeparture === undefined) {
           if(hour === 23) {
@@ -150,6 +149,33 @@
 
       $('#from_luma').text(pad(hour) + ':' + pad(nextDeparture) + '   -   ' + minutesToDeparture(currentHour, currentMinute, hour, minute, nextDeparture) + ' minuter');
       
+
+
+      now = new Date();
+      hour = now.getHours();
+      minute = now.getMinutes();
+      currentHour = hour;
+      currentMinute= minute;
+      nextDeparture = undefined;
+      while(nextDeparture === undefined) {
+        if(to_luma[hour] === undefined) {
+          hour = 6;
+        }
+
+        var departures = to_luma[hour];
+        nextDeparture = departureForMinute(departures, minute);
+        
+        if(nextDeparture === undefined) {
+          if(hour === 23) {
+            hour = 0;
+          } else {
+            hour++;
+          }
+          minute=0;
+        }
+      }
+
+      $('#to_luma').text(pad(hour) + ':' + pad(nextDeparture) + '   -   ' + minutesToDeparture(currentHour, currentMinute, hour, minute, nextDeparture) + ' minuter');
 
       
     });
