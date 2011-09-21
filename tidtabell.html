@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Sjöstadsfärjan - Tidtabell</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="keywords" content="ressel tidtabell färja båt hammarby sjöstad stockholm södermalm barnängsbryggan luma" />
+    <meta name="description" content="Visar när nästa färja går mellan hammarby sjöstad och södermalm" />
+    <link rel=”apple-touch-icon” href=”/icon.png”/>
+    
+    <style>
+    h2 {
+      font-size: 30px;
+    }
+    
+    body {
+      color: #AAA;
+      font-family: "Arial";
+      font-size: 30px;
+    }
+
+    #main {
+      padding: 20px;
+    	background: -webkit-gradient(linear, left top, left bottom, from(#DDDDDD), to(#FFFFFF));
+    	background: -moz-linear-gradient(top,  #DDDDDD,  #FFFFFF);
+    	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#DDDDDD', endColorstr='#FFFFFF');
+
+      -moz-border-radius: 8px;
+      -webkit-border-radius: 8px;
+      border-radius: 8px;
+      margin: 0 auto;
+      width: 80%;
+      min-width: 500px;
+    }
+
+    
+    </style>
+</head>
+<body>
+  <div id="main">
+  <h2>Nästa färja från sjöstan</h2>
+  <div id="from_luma"></div>
+  <h2>Nästa färja till sjöstan</h2>
+  <div id="to_luma"></div>
+  
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript">
+
+    $(document).ready(function() {
+      var from_luma = {
+        '6': [5, 25, 45],
+        '7': [5, 15, 25, 35, 45, 55],
+        '8': [5, 15, 25, 35, 45, 55],
+        '9': [5, 25, 45],
+        '10': [5, 25, 45],
+        '11': [5, 25, 45],
+        '12': [5, 25, 45],
+        '13': [5, 25, 45],
+        '14': [5, 25, 45],
+        '15': [5, 25, 45],
+        '16': [5, 15, 25, 35, 45, 55],
+        '17': [5, 15, 25, 35, 45, 55],
+        '18': [5, 25, 45],
+        '19': [5, 25, 45],
+        '20': [5,	25,	45],
+        '21': [5,	25,	45],
+        '22': [5, 25, 45],
+        '23': [5, 25, 45],
+        '0': [5]
+      };
+
+      var to_luma = {
+          '6': [0, 20, 40],
+          '7': [0, 10, 20, 30, 40, 50],
+          '8': [0, 10, 20, 30, 40, 50],
+          '9': [0, 20, 40],
+          '10': [0, 20, 40],
+          '11': [0, 20, 40],
+          '12': [0, 20, 40],
+          '13': [0, 20, 40],
+          '14': [0, 20, 40],
+          '15': [0, 20, 40],
+          '16': [0, 10, 20, 30, 40, 50],
+          '17': [0, 10, 20, 30, 40, 50],
+          '18': [0, 20, 40],
+          '19': [0, 20, 40],
+          '20': [0, 20, 40],
+          '21': [0, 20, 40],
+          '22': [0, 20, 40],
+          '23': [0, 20, 40],
+          '0': [0]
+        };
+  
+
+
+      function findNextDeparture(departures, minute) {
+        for(var index in departures) {
+          if(departures[index] >= minute) {
+            return departures[index];
+          }
+        }
+        return undefined;
+      }
+      
+      function pad(time) {
+        if(time < 10) {
+          return '0'+time;
+        } else {
+          return time;
+        }
+      }
+      
+      function minutesToDeparture(currentHour, currentMinute, hour, minute, departure) {
+        var minutes = 0;
+        if(minute !== currentMinute ) {
+          minutes = (60 - currentMinute) + departure;
+        } else {
+          minutes = departure - currentMinute;
+        }
+        if(hour != currentHour) {
+          minutes += (hour - currentHour - 1)*60;
+        }
+        return minutes;
+      }
+            
+      var now = new Date();
+      var hour = now.getHours();
+      var minute = now.getMinutes();
+      var currentHour = hour;
+      var currentMinute= minute;
+
+      var nextDeparture;
+      while(nextDeparture === undefined) {
+        if(from_luma[hour] === undefined) {
+          hour = 6;
+        }
+
+        var departures = from_luma[hour];
+        nextDeparture = findNextDeparture(departures, minute);
+        
+        if(nextDeparture === undefined) {
+          if(hour === 23) {
+            hour = 0;
+          } else {
+            hour++;
+          }
+          minute=0;
+        }
+      }
+
+      $('#from_luma').text(pad(hour) + ':' + pad(nextDeparture) + '   -   ' + minutesToDeparture(currentHour, currentMinute, hour, minute, nextDeparture) + ' minuter');
+      
+
+      
+    });
+    
+  </script>
+</body>
