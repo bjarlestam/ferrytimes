@@ -103,6 +103,10 @@
         }
       }
       
+      function minuteOrMinutes(minutes) {
+        return (minutes == 1)?' minut':' minuter';
+      }
+      
       function minutesToDeparture(now, departureTime) {
         var milliseconds = departureTime.getTime() - now.getTime();
         return Math.round(milliseconds/60000);
@@ -147,13 +151,14 @@
 
       var now = new Date();
       var nextFromLuma = nextDeparture(DEPARTURES_FROM_LUMA, now);
+      var minutesFromLuma = minutesToDeparture(now, nextFromLuma);
       var nextToLuma = nextDeparture(DEPARTURES_TO_LUMA, now);
+      var minutesToLuma = minutesToDeparture(now, nextToLuma);
       
-
       $('#from_luma').text(pad(nextFromLuma.getHours()) + ':' + pad(nextFromLuma.getMinutes()) + 
-      '   -   ' + minutesToDeparture(now, nextFromLuma) + ' minuter');
+      '   -   ' + minutesFromLuma + minuteOrMinutes(minutesFromLuma));
       
-      $('#to_luma').text(pad(nextToLuma.getHours()) + ':' + pad(nextToLuma.getMinutes()) + '   -   ' + minutesToDeparture(now, nextToLuma) + ' minuter');
+      $('#to_luma').text(pad(nextToLuma.getHours()) + ':' + pad(nextToLuma.getMinutes()) + '   -   ' + minutesToLuma + minuteOrMinutes(minutesToLuma));
 
       
     });
