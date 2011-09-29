@@ -49,7 +49,7 @@
   <script type="text/javascript">
 
     $(document).ready(function() {
-      var from_luma = {
+      var DEPARTURES_FROM_LUMA = {
         '6': [5, 25, 45],
         '7': [5, 15, 25, 35, 45, 55],
         '8': [5, 15, 25, 35, 45, 55],
@@ -71,7 +71,7 @@
         '0': [5]
       };
 
-      var to_luma = {
+      var DEPARTURES_TO_LUMA = {
           '6': [0, 20, 40],
           '7': [0, 10, 20, 30, 40, 50],
           '8': [0, 10, 20, 30, 40, 50],
@@ -94,14 +94,6 @@
         };
   
 
-      function departureForMinute(departures, minute) {
-        for(var index in departures) {
-          if(departures[index] >= minute) {
-            return departures[index];
-          }
-        }
-        return undefined;
-      }
       
       function pad(time) {
         if(time < 10) {
@@ -111,73 +103,57 @@
         }
       }
       
-      function minutesToDeparture(currentHour, currentMinute, hour, minute, departure) {
-        var minutes = 0;
-        if(minute !== currentMinute ) {
-          minutes = (60 - currentMinute) + departure;
-        } else {
-          minutes = departure - currentMinute;
-        }
-        if(hour != currentHour) {
-          minutes += (hour - currentHour - 1)*60;
-        }
-        return minutes;
+      function minutesToDeparture(now, departureTime) {
+        var milliseconds = departureTime.getTime() - now.getTime();
+        return Math.round(milliseconds/60000);
       }
       
+      function nextDepartureThisHour(departures, departureTime) {
+        for(var index in departures) {
+          if(departures[index] > departureTime.getMinutes()) {
+            return departures[index];
+          }
+        }
+        return undefined;
+      }
+      
+      function nextDeparture(departureMatrix, now) {
+        var departureTime = new Date(now);
+        var nextDeparture;
+        while(nextDeparture === undefined) {
+          
+          if(departureMatrix[departureTime.getHours()] === undefined) {
+            departureTime.setHours(6);
+            hour = 6;
+          }
+
+          var departures = departureMatrix[departureTime.getHours()];
+          nextDeparture = nextDepartureThisHour(departures, departureTime);
+
+          if(nextDeparture === undefined) {
+            if(departureTime.getHours() === 23) {
+              departureTime.setDate(departureTime.getDate() + 1);
+              departureTime.setHours(0);
+            } else {
+              departureTime.setHours(departureTime.getHours() + 1);
+            }
+            departureTime.setMinutes(0);
+          } else {
+            departureTime.setMinutes(nextDeparture);
+          }
+        }
+        return departureTime;
+      }
+
       var now = new Date();
-      var hour = now.getHours();
-      var minute = now.getMinutes();
-      var currentHour = hour;
-      var currentMinute= minute;
-
-      var nextDeparture;
-      while(nextDeparture === undefined) {
-        if(from_luma[hour] === undefined) {
-          hour = 6;
-        }
-
-        var departures = from_luma[hour];
-        nextDeparture = departureForMinute(departures, minute);
-        
-        if(nextDeparture === undefined) {
-          if(hour === 23) {
-            hour = 0;
-          } else {
-            hour++;
-          }
-          minute=0;
-        }
-      }
-
-      $('#from_luma').text(pad(hour) + ':' + pad(nextDeparture) + '   -   ' + minutesToDeparture(currentHour, currentMinute, hour, minute, nextDeparture) + ' minuter');
+      var nextFromLuma = nextDeparture(DEPARTURES_FROM_LUMA, now);
+      var nextToLuma = nextDeparture(DEPARTURES_TO_LUMA, now);
       
 
-
-      now = new Date();
-      hour = now.getHours();
-      minute = now.getMinutes();
-      currentHour = hour;
-      currentMinute= minute;
-      nextDeparture = undefined;
-      while(nextDeparture === undefined) {
-        if(to_luma[hour] === undefined) {
-          hour = 6;
-        }
-
-        var departures = to_luma[hour];
-        nextDeparture = departureForMinute(departures, minute);
-        
-        if(nextDeparture === undefined) {
-          if(hour === 23) {
-            hour = 0;
-          } else {
-            hour++;
-          }
-          minute=0;
-        }
-      }
-
-      $('#to_luma').text(pad(hour) + ':' + pad(nextDeparture) + '   -   ' + minutesToDeparture(currentHour, currentMinute, hour, minute, nextDeparture) + ' minuter');
+      $('#from_luma').text(pad(nextFromLuma.getHours()) + ':' + pad(nextFromLuma.getMinutes()) + 
+      '   -   ' + minutesToDeparture(now, nextFromLuma) + ' minuter');
+      
+      $('#to_luma').text(pad(nextToLuma.getHours()) + ':' + pad(nextToLuma.getMinutes()) + '   -   ' + minutesToDeparture(now, nextToLuma) + ' minuter');
 
       
     });
