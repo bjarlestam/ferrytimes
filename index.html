@@ -35,15 +35,33 @@
       min-width: 500px;
     }
 
+    #show_timetable_from_luma, #show_timetable_to_luma {
+      height: 1em;
+      width: 1em;
+      margin-left: 1em;
+      background-color: #888;
+      display: inline-block;
+    }
     
+    .timetable {
+      z-index: 100;
+      width: 95%;
+      position: absolute;
+      top: 1em;
+    }
+        
     </style>
 </head>
 <body>
   <div id="main">
   <h2>Nästa färja från sjöstan</h2>
-  <div id="from_luma"></div>
+  <div>
+    <span id="from_luma"></span><span id="show_timetable_from_luma"></span>
+  </div>
   <h2>Nästa färja till sjöstan</h2>
-  <div id="to_luma"></div>
+  <div>
+    <span id="to_luma"></span><span id="show_timetable_to_luma"></span>
+  </div>
   
   <script type="text/javascript" src="jquery.js"></script>
   <script type="text/javascript">
@@ -211,6 +229,17 @@
       var now = new Date();
       showNextDeparture(DEPARTURES_FROM_LUMA_WEEKDAYS, DEPARTURES_FROM_LUMA_WEEKENDS, now, '#from_luma');
       showNextDeparture(DEPARTURES_TO_LUMA_WEEKDAYS, DEPARTURES_TO_LUMA_WEEKENDS, now, '#to_luma');
+      
+      
+      
+      function showTimetable(departures) {
+        var timetable = $('<div class="timetable"></div>');
+        
+      }
+      
+      $('#show_timetable_from_luma').click(function() {
+        console.log('clicked');
+      });
       
     });
     
