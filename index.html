@@ -27,12 +27,15 @@
     	background: -moz-linear-gradient(top,  #DDDDDD,  #FFFFFF);
     	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#DDDDDD', endColorstr='#FFFFFF');
 
-      -moz-border-radius: 8px;
-      -webkit-border-radius: 8px;
-      border-radius: 8px;
       margin: 0 auto;
       width: 80%;
       min-width: 500px;
+    }
+    
+    .rounded {
+      -moz-border-radius: 8px;
+      -webkit-border-radius: 8px;
+      border-radius: 8px;
     }
 
     #show_timetable_from_luma, #show_timetable_to_luma {
@@ -45,22 +48,24 @@
     
     .timetable {
       z-index: 100;
-      width: 95%;
+      width: 50%;
       position: absolute;
       top: 1em;
+      background: #444;
+      padding: 1em;
     }
         
     </style>
 </head>
 <body>
-  <div id="main">
+  <div id="main" class="rounded">
   <h2>Nästa färja från sjöstan</h2>
   <div>
-    <span id="from_luma"></span><span id="show_timetable_from_luma"></span>
+    <span id="from_luma"></span><span id="show_timetable_from_luma" class="rounded"></span>
   </div>
   <h2>Nästa färja till sjöstan</h2>
   <div>
-    <span id="to_luma"></span><span id="show_timetable_to_luma"></span>
+    <span id="to_luma"></span><span id="show_timetable_to_luma" class="rounded"></span>
   </div>
   
   <script type="text/javascript" src="jquery.js"></script>
@@ -211,14 +216,17 @@
         }
         return departureTime;
       }
+      
+      function departuresThisDay(departures_weekdays, departures_weekends, now) {
+        if(now.getDay() === 6 || now.getDay() === 7) {
+          return departures_weekends;
+        } else {
+          return departures_weekdays;
+        }
+      }
 
       function showNextDeparture(departures_weekdays, departures_weekends, now, selector) {
-        var departures;
-        if(now.getDay() === 6 || now.getDay() === 7) {
-          departures = departures_weekends;
-        } else {
-          departures = departures_weekdays;
-        }
+        var departures = departuresThisDay(departures_weekdays, departures_weekends, now);
         var next = nextDeparture(departures, now);
         var minutes = minutesToDeparture(now, next);
         $(selector).text(pad(next.getHours()) + ':' + pad(next.getMinutes()) + 
@@ -232,13 +240,27 @@
       
       
       
-      function showTimetable(departures) {
-        var timetable = $('<div class="timetable"></div>');
+      function buildTimetable(departures_weekdays, departures_weekends) {
+        var timetable = $('<div class="timetable rounded"></div>');
+        var now = new Date();
+        var departures = departuresThisDay(departures_weekdays, departures_weekends, now);
         
+        var next = nextDeparture(departures, now);
+        
+        var departuresInHour = departures[next.getHours()];
+        for(var index in departuresInHour) {
+          timetable.append('<div>' + next.getHours() + ':' + departuresInHour[index] + '</div>')
+        }
+        return timetable;
       }
       
       $('#show_timetable_from_luma').click(function() {
-        console.log('clicked');
+        var timetable = buildTimetable(DEPARTURES_FROM_LUMA_WEEKDAYS, DEPARTURES_FROM_LUMA_WEEKENDS);
+        timetable.insertAfter('#show_timetable_from_luma');
+        timetable.one('click', function() {
+          timetable.remove();
+        });
+        
       });
       
     });
