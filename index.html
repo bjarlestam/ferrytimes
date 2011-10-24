@@ -54,6 +54,10 @@
       background: #444;
       padding: 1em;
     }
+    
+    .nextDeparture {
+      color: white;
+    }
         
     </style>
 </head>
@@ -249,17 +253,24 @@
         
         var departuresInHour = departures[next.getHours()];
         for(var index in departuresInHour) {
-          timetable.append('<div>' + next.getHours() + ':' + departuresInHour[index] + '</div>')
+          var row = $('<div>' + pad(next.getHours()) + ':' + pad(departuresInHour[index]) + '</div>');
+          if(departuresInHour[index] === next.getMinutes()) {
+            row.addClass('nextDeparture');
+          }
+          timetable.append(row);
         }
         return timetable;
       }
       
+            
       $('#show_timetable_from_luma').click(function() {
         var timetable = buildTimetable(DEPARTURES_FROM_LUMA_WEEKDAYS, DEPARTURES_FROM_LUMA_WEEKENDS);
         timetable.insertAfter('#show_timetable_from_luma');
-        timetable.one('click', function() {
-          timetable.remove();
-        });
+        setTimeout(function(){
+          $('body').one('click', function(e) {
+            timetable.remove();
+          });
+        }, 100);
         
       });
       
