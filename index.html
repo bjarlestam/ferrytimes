@@ -41,7 +41,7 @@
     #show_timetable_from_luma, #show_timetable_to_luma {
       height: 1em;
       width: 1em;
-      margin-left: 1em;
+      margin-left: 2em;
       background-color: #888;
       display: inline-block;
     }
@@ -252,9 +252,18 @@
         var next = nextDeparture(departures, now);
         
         var departuresInHour = departures[next.getHours()];
-        for(var index in departuresInHour) {
-          var row = $('<div>' + pad(next.getHours()) + ':' + pad(departuresInHour[index]) + '</div>');
-          if(departuresInHour[index] === next.getMinutes()) {
+        addToTimetable(timetable, next.getHours(), departuresInHour, next);
+        if(departures[next.getHours() + 1]) {
+          var departuresNextHour = departures[next.getHours() + 1];
+          addToTimetable(timetable, next.getHours()+1, departuresNextHour);
+        }
+        return timetable;
+      }
+      
+      function addToTimetable(timetable, hour, departures, next) {
+        for(var index in departures) {
+          var row = $('<div>' + pad(hour) + ':' + pad(departures[index]) + '</div>');
+          if(next && (departures[index] === next.getMinutes())) {
             row.addClass('nextDeparture');
           }
           timetable.append(row);
@@ -262,17 +271,22 @@
         return timetable;
       }
       
-            
-      $('#show_timetable_from_luma').click(function() {
-        var timetable = buildTimetable(DEPARTURES_FROM_LUMA_WEEKDAYS, DEPARTURES_FROM_LUMA_WEEKENDS);
-        timetable.insertAfter('#show_timetable_from_luma');
-        setTimeout(function(){
-          $('body').one('click', function(e) {
-            timetable.remove();
-          });
-        }, 100);
-        
-      });
+      function addTimetableButtonEvent(button, departures_weekdays, departures_weekends) {
+        $(button).click(function() {
+          var timetable = buildTimetable(departures_weekdays, departures_weekends);
+          timetable.insertAfter(button);
+          setTimeout(function(){
+            $('body').one('click', function(e) {
+              timetable.remove();
+              return false;
+            });
+          }, 100);
+        });
+      }
+      
+      addTimetableButtonEvent('#show_timetable_from_luma', DEPARTURES_FROM_LUMA_WEEKDAYS, DEPARTURES_FROM_LUMA_WEEKENDS);
+      addTimetableButtonEvent('#show_timetable_to_luma', DEPARTURES_TO_LUMA_WEEKDAYS, DEPARTURES_TO_LUMA_WEEKENDS);
+      
       
     });
     
