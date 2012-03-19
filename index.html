@@ -19,6 +19,7 @@
       color: #F58B2F;
       font-family: "Arial";
       font-size: 3em;
+      width: 100%;
     }
 
     #main {
@@ -28,7 +29,7 @@
     	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#DDDDDD', endColorstr='#FFFFFF');
 
       margin: 0 auto;
-      width: 80%;
+      width: 90%;
       min-width: 500px;
     }
     
@@ -42,10 +43,9 @@
       height: 50px;
       width: 50px;
       margin-left: 2em;
-      background-color: #AAA;
       display: inline-block;
-      background-image: url('list.png');
-      background-repeat: no-repeat;
+      background: url('list.png') #AAA no-repeat;
+      cursor: pointer;
     }
     
     .timetable {
@@ -188,7 +188,7 @@
       
       function nextDepartureThisHour(departures, departureTime) {
         for(var index in departures) {
-          if(departures[index] > departureTime.getMinutes()) {
+          if(departures[index] >= departureTime.getMinutes()) {
             return departures[index];
           }
         }
